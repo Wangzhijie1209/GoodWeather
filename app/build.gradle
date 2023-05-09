@@ -29,6 +29,12 @@ android {
     buildFeatures {
         viewBinding true    //开启ViewBinding
     }
+    sourceSets{
+        main{
+            jniLibs.srcDir 'libs'
+            jni.srcDirs = []    //disable automatic ndk-build
+        }
+    }
 
 }
 
