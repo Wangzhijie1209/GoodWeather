@@ -1,5 +1,6 @@
 package com.wzj.goodweather.repository;
 
+
 import android.annotation.SuppressLint;
 import android.util.Log;
 
@@ -14,21 +15,30 @@ import com.wzj.library.network.observer.BaseObserver;
 
 @SuppressLint("CheckResult")
 public class WeatherRepository {
+
     private static final String TAG = WeatherRepository.class.getSimpleName();
 
-    public void nowWeather(MutableLiveData<NowResponse> responseMutableLiveData, MutableLiveData<String> failed, String cityId) {
+    /**
+     * 实况天气
+     *
+     * @param responseLiveData 成功数据
+     * @param failed           错误信息
+     * @param cityId           城市ID
+     */
+    public void nowWeather(MutableLiveData<NowResponse> responseLiveData,
+                           MutableLiveData<String> failed, String cityId) {
         String type = "实时天气-->";
         NetworkApi.createService(ApiService.class, ApiType.WEATHER).nowWeather(cityId)
                 .compose(NetworkApi.applySchedulers(new BaseObserver<NowResponse>() {
                     @Override
                     public void onSuccess(NowResponse nowResponse) {
                         if (nowResponse == null) {
-                            failed.postValue("实况天气数据为null,请检查城市ID是否正确.");
+                            failed.postValue("实况天气数据为null，请检查城市ID是否正确。");
                             return;
                         }
-                        //请求接口成功返回数据,失败返回状态码
+                        //请求接口成功返回数据，失败返回状态码
                         if (Constant.SUCCESS.equals(nowResponse.getCode())) {
-                            responseMutableLiveData.postValue(nowResponse);
+                            responseLiveData.postValue(nowResponse);
                         } else {
                             failed.postValue(type + nowResponse.getCode());
                         }

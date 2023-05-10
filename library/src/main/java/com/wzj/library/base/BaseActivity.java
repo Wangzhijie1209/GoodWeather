@@ -3,6 +3,7 @@ package com.wzj.library.base;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -81,5 +82,7 @@ public class BaseActivity extends AppCompatActivity {
         window.setStatusBarColor(Color.TRANSPARENT);
         window.setNavigationBarColor(Color.TRANSPARENT);
     }
+
+
 
 }

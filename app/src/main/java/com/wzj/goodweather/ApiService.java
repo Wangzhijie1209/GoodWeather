@@ -18,9 +18,10 @@ public interface ApiService {
      * @return NewSearchCityResponse 搜索城市数据返回
      */
     @GET("/v2/city/lookup?key=" + API_KEY + "&range=cn")
-    Observable<SearchCityResponse> searchCity(@Query("location") String location,
-                                              @Query("mode") String mode);
+    Observable<SearchCityResponse> searchCity(@Query("location") String location);
+
 
     @GET("/v7/weather/now?key=" + API_KEY)
     Observable<NowResponse> nowWeather(@Query("location") String location);
+
 }

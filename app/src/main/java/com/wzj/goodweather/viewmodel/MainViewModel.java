@@ -16,7 +16,7 @@ public class MainViewModel extends BaseViewModel {
      * 搜索成功
      */
     public void searchCity(String cityName, boolean isExact) {
-        new SearchCityRepository().searchCity(searchCityResponseMutableLiveData, failed, cityName, isExact);
+        new SearchCityRepository().searchCity(searchCityResponseMutableLiveData, failed, cityName);
     }
     public void nowWeather(String cityId){
         new WeatherRepository().nowWeather(nowResponseMutableLiveData,failed,cityId);

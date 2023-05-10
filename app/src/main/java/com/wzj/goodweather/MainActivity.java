@@ -78,21 +78,12 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
      */
     @Override
     public void onReceiveLocation(BDLocation bdLocation) {
-        double latitude = bdLocation.getLatitude();//获得纬度信息
-        double longitude = bdLocation.getLongitude();//获取经度信息
-        float radius = bdLocation.getRadius();//获取定位精度,默认值为0.0f
-        String coorType = bdLocation.getCoorType();
-        //获取经纬度坐标类型, 以LocationClientOption中设置过的坐标类型为准
-        int errorCode = bdLocation.getLocType();//161 表示网络定位结果
-        String addr = bdLocation.getAddrStr();//获取详细地址信息
-        String country = bdLocation.getCountry();//获取国家
-        String province = bdLocation.getProvince();//获取省份
-        String city = bdLocation.getCity();//获取城市
-        String district = bdLocation.getDistrict();//获取区县
-        String street = bdLocation.getStreet();//获取街道信息
-        String locationDescribe = bdLocation.getLocationDescribe();//获取位置描述信息
+        String city = bdLocation.getCity();
+        String district = bdLocation.getDistrict();
 
         if (viewModel != null && district != null) {
+            //显示当前定位城市
+            binding.tvCity.setText(district);
             //搜索城市
             viewModel.searchCity(district, true);
         } else {
@@ -178,7 +169,7 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
                 NowResponse.NowBean now = nowResponse.getNow();
                 if (now != null) {
                     binding.tvInfo.setText(now.getText());
-                    binding.tvTemp.setText(now.getText());
+                    binding.tvTemp.setText(now.getTemp());
                     binding.tvUpdateTime.setText("最近更新时间:" + nowResponse.getUpdateTime());
                 }
             });

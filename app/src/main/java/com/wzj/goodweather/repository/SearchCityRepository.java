@@ -17,31 +17,39 @@ import com.wzj.library.network.observer.BaseObserver;
  */
 @SuppressLint("CheckResult")
 public class SearchCityRepository {
+
     private static final String TAG = SearchCityRepository.class.getSimpleName();
 
-    public void searchCity(MutableLiveData<SearchCityResponse> responseMutableLiveData,
-                           MutableLiveData<String> failed, String cityName, boolean isExact) {
-        NetworkApi.createService(ApiService.class, ApiType.SEARCH).searchCity(cityName, isExact ? Constant.EXACT : Constant.FUZZY)
+    /**
+     * 搜索城市
+     *
+     * @param responseLiveData 成功数据
+     * @param failed           错误信息
+     * @param cityName         城市名称
+     */
+    public void searchCity(MutableLiveData<SearchCityResponse> responseLiveData,
+                           MutableLiveData<String> failed, String cityName) {
+        String type = "搜索城市-->";
+        NetworkApi.createService(ApiService.class, ApiType.SEARCH).searchCity(cityName)
                 .compose(NetworkApi.applySchedulers(new BaseObserver<SearchCityResponse>() {
                     @Override
                     public void onSuccess(SearchCityResponse searchCityResponse) {
                         if (searchCityResponse == null) {
-                            failed.postValue("搜索城市数据为null,请检查城市名称是否正确");
+                            failed.postValue("搜索城市数据为null，请检查城市名称是否正确。");
                             return;
                         }
-                        //请求接口成功返回数据,失败返回状态码
-                        if (Constant.SUCCESS.equals(searchCityResponse
-                                .getCode())) {
-                            responseMutableLiveData.postValue(searchCityResponse);
+                        //请求接口成功返回数据，失败返回状态码
+                        if (Constant.SUCCESS.equals(searchCityResponse.getCode())) {
+                            responseLiveData.postValue(searchCityResponse);
                         } else {
-                            failed.postValue(searchCityResponse.getCode());
+                            failed.postValue(type + searchCityResponse.getCode());
                         }
                     }
 
                     @Override
                     public void onFailure(Throwable e) {
-                        Log.d(TAG, "onFailure: "+e.getMessage());
-                        failed.postValue(e.getMessage());
+                        Log.e(TAG, "onFailure: " + e.getMessage());
+                        failed.postValue(type + e.getMessage());
                     }
                 }));
     }

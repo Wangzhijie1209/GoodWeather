@@ -81,4 +81,5 @@
         app:layout_constraintEnd_toEndOf="@+id/tv_city"
         app:layout_constraintStart_toStartOf="@+id/tv_city"
         app:layout_constraintTop_toBottomOf="@+id/tv_city" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
