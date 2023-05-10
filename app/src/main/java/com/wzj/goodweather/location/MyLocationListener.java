@@ -9,8 +9,6 @@ import com.baidu.location.BDLocation;
  * 自定义定位监听类 哪里使用就哪里实现接口
  */
 public class MyLocationListener extends BDAbstractLocationListener {
-    private final String TAG = MyLocationListener.class.getSimpleName();
-
     //定位回调
     private LocationCallback callback;
 

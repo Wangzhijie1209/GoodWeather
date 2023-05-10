@@ -2,41 +2,50 @@ package com.wzj.goodweather;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
+import android.util.Log;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.wzj.goodweather.bean.SearchCityResponse;
 import com.wzj.goodweather.databinding.ActivityMainBinding;
 import com.wzj.goodweather.location.LocationCallback;
 import com.wzj.goodweather.location.MyLocationListener;
+import com.wzj.goodweather.viewmodel.MainViewModel;
+import com.wzj.library.base.NetWorkActivity;
 
-public class MainActivity extends AppCompatActivity implements LocationCallback {
-    private ActivityMainBinding binding;
+import java.util.List;
 
-    public LocationClient mLocationClient = null;
-    private final MyLocationListener myListener = new MyLocationListener();
-
+public class MainActivity extends NetWorkActivity<ActivityMainBinding> implements LocationCallback {
     //权限数组
     private final String[] permissions = {android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
     //请求权限意图
     private ActivityResultLauncher<String[]> requestPermissionIntent;
+    public LocationClient mLocationClient = null;
+    private final MyLocationListener myListener = new MyLocationListener();
 
+    private MainViewModel viewModel;
 
+    /**
+     * 注册意图
+     */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        registerIntent();//检测多个权限
-        super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        initLocation();
-        requestPermission();
+    public void onRegister() {
+        //请求权限意图
+        requestPermissionIntent = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+            boolean fineLocation = Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_FINE_LOCATION));
+            boolean writeStorage = Boolean.TRUE.equals(result.get(Manifest.permission.WRITE_EXTERNAL_STORAGE));
+            if (fineLocation && writeStorage) {
+                //权限已经获取到，开始定位
+                startLocation();
+            }
+        });
     }
+
 
     /**
      * 初始化定位
@@ -45,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements LocationCallback 
         try {
             mLocationClient = new LocationClient(getApplicationContext());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         if (mLocationClient != null) {
             myListener.setCallback(this);
@@ -82,6 +91,13 @@ public class MainActivity extends AppCompatActivity implements LocationCallback 
         String street = bdLocation.getStreet();//获取街道信息
         String locationDescribe = bdLocation.getLocationDescribe();//获取位置描述信息
         binding.tvAddressDetail.setText(addr);
+
+        if (viewModel != null && district != null) {
+           //搜索城市
+            viewModel.searchCity(district,true);
+        }else {
+            Log.e("TAG", "district: "+district );
+        }
     }
 
     /**
@@ -118,12 +134,40 @@ public class MainActivity extends AppCompatActivity implements LocationCallback 
      */
     private void requestPermission() {
         //因为项目的最低版本API是23，所以肯定需要动态请求危险权限，只需要判断权限是否拥有即可
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             //开始权限请求
             requestPermissionIntent.launch(permissions);
             return;
         }
+        //开始定位
         startLocation();
     }
+
+    /**
+     * 初始化
+     */
+    @Override
+    protected void onCreate() {
+        initLocation();
+        requestPermission();
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+    }
+
+    /**
+     * 数据观察
+     */
+    @Override
+    protected void onObserveData() {
+        if (viewModel != null) {
+            viewModel.searchCityResponseMutableLiveData.observe(this, searchCityResponse -> {
+                List<SearchCityResponse.LocationBean> location = searchCityResponse.getLocation();
+                if (location != null && location.size() > 0) {
+                    String id = location.get(0).getId();
+                    Log.d("TAG", "城市ID: " + id);
+                }
+            });
+        }
+    }
+
 }
