@@ -14,8 +14,6 @@ public abstract class NetWorkActivity<VB extends ViewBinding> extends BaseVBActi
         onObserveData();
     }
 
-
-
     protected abstract void onCreate();
     protected abstract void onObserveData();
 }

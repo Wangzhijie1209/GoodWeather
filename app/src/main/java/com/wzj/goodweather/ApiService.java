@@ -2,6 +2,7 @@ package com.wzj.goodweather;
 
 import static com.wzj.goodweather.Constant.API_KEY;
 
+import com.wzj.goodweather.bean.NowResponse;
 import com.wzj.goodweather.bean.SearchCityResponse;
 
 import io.reactivex.Observable;
@@ -19,4 +20,7 @@ public interface ApiService {
     @GET("/v2/city/lookup?key=" + API_KEY + "&range=cn")
     Observable<SearchCityResponse> searchCity(@Query("location") String location,
                                               @Query("mode") String mode);
+
+    @GET("/v7/weather/now?key=" + API_KEY)
+    Observable<NowResponse> nowWeather(@Query("location") String location);
 }

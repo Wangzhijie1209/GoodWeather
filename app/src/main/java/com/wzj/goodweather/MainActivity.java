@@ -11,6 +11,7 @@ import android.util.Log;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.wzj.goodweather.bean.NowResponse;
 import com.wzj.goodweather.bean.SearchCityResponse;
 import com.wzj.goodweather.databinding.ActivityMainBinding;
 import com.wzj.goodweather.location.LocationCallback;
@@ -90,13 +91,12 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
         String district = bdLocation.getDistrict();//获取区县
         String street = bdLocation.getStreet();//获取街道信息
         String locationDescribe = bdLocation.getLocationDescribe();//获取位置描述信息
-        binding.tvAddressDetail.setText(addr);
 
         if (viewModel != null && district != null) {
-           //搜索城市
-            viewModel.searchCity(district,true);
-        }else {
-            Log.e("TAG", "district: "+district );
+            //搜索城市
+            viewModel.searchCity(district, true);
+        } else {
+            Log.e("TAG", "district: " + district);
         }
     }
 
@@ -149,6 +149,7 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
      */
     @Override
     protected void onCreate() {
+        setFullScreenImmersion();
         initLocation();
         requestPermission();
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
@@ -160,13 +161,29 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
     @Override
     protected void onObserveData() {
         if (viewModel != null) {
+            //城市数据返回
             viewModel.searchCityResponseMutableLiveData.observe(this, searchCityResponse -> {
                 List<SearchCityResponse.LocationBean> location = searchCityResponse.getLocation();
                 if (location != null && location.size() > 0) {
                     String id = location.get(0).getId();
-                    Log.d("TAG", "城市ID: " + id);
+                    //获取到城市的ID
+                    if (id != null) {
+                        //通过城市ID查询城市实时天气
+                        viewModel.nowWeather(id);
+                    }
                 }
             });
+            //实况天气返回
+            viewModel.nowResponseMutableLiveData.observe(this, nowResponse -> {
+                NowResponse.NowBean now = nowResponse.getNow();
+                if (now != null) {
+                    binding.tvInfo.setText(now.getText());
+                    binding.tvTemp.setText(now.getText());
+                    binding.tvUpdateTime.setText("最近更新时间:" + nowResponse.getUpdateTime());
+                }
+            });
+            //错误信息返回
+            viewModel.failed.observe(this, this::showLongMsg);
         }
     }
 

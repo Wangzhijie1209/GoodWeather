@@ -48,12 +48,15 @@ public class NetworkApi {
     }
 
     /**
-     * 修改访问地址
+     * 修改访问地址  根据判断接口传进来的Api类型,从而设置不同的地址头,因为每一个接口都需要有成功和失败的请求调用
      */
     private static void getBaseUrl(ApiType apiType) {
         switch (apiType) {
             case SEARCH:
-                mBaseUrl = "https://geoapi.qweather.com";
+                mBaseUrl = "https://geoapi.qweather.com";//和风天气 搜索城市
+                break;
+            case WEATHER:
+                mBaseUrl = "dhttps://evapi.qweather.com";//和风 实时天气API
                 break;
             default:
                 break;
@@ -138,8 +141,10 @@ public class NetworkApi {
             @Override
             public ObservableSource<T> apply(Observable<T> upstream) {
                 Observable<T> observable = upstream
-                        .subscribeOn(Schedulers.io())//线程订阅
-                        .observeOn(AndroidSchedulers.mainThread())//观察Android主线程
+                        .subscribeOn(Schedulers.io())//线程订阅操作在io线程
+                        .observeOn(AndroidSchedulers.mainThread())//观察操作在Android主线程上执行
+                        //map 方法将 Observable 映射到一个新的 Observable，该 Observable 会检查是否存在 500 错误。如果存在，
+                        // 则调用 getAppErrorHandler 方法处理错误。最后，它使用 onErrorResumeNext 方法处理 400 错误。
                         .map(NetworkApi.<T>getAppErrorHandler())//判断有没有500的错误,有则进入getAppERRORhANDLER
                         .onErrorResumeNext(new HttpErrorHandler<T>());//判断有没有400的错误
                 //这里还少了对异常

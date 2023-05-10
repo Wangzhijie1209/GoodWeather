@@ -7,6 +7,9 @@ import java.io.IOException;
 import okhttp3.Interceptor;
 import okhttp3.Response;
 
+/**
+ * 返回拦截器
+ */
 public class ResponseInterceptor implements Interceptor {
     private static final String TAG = ResponseInterceptor.class.getSimpleName();
 
