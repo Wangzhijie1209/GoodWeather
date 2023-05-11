@@ -20,6 +20,13 @@ public class SearchCityRepository {
 
     private static final String TAG = SearchCityRepository.class.getSimpleName();
 
+    private static final class SearchCityRepositoryHolder {
+        private static final SearchCityRepository mInstance = new SearchCityRepository();
+    }
+    public static SearchCityRepository getInstance() {
+        return SearchCityRepositoryHolder.mInstance;
+    }
+
     /**
      * 搜索城市
      *

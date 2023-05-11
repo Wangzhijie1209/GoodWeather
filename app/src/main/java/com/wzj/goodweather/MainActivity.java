@@ -3,6 +3,7 @@ package com.wzj.goodweather;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -11,6 +12,8 @@ import android.util.Log;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.wzj.goodweather.adapter.DailyAdapter;
+import com.wzj.goodweather.bean.DailyResponse;
 import com.wzj.goodweather.bean.NowResponse;
 import com.wzj.goodweather.bean.SearchCityResponse;
 import com.wzj.goodweather.databinding.ActivityMainBinding;
@@ -19,6 +22,7 @@ import com.wzj.goodweather.location.MyLocationListener;
 import com.wzj.goodweather.viewmodel.MainViewModel;
 import com.wzj.library.base.NetWorkActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends NetWorkActivity<ActivityMainBinding> implements LocationCallback {
@@ -30,6 +34,15 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
     private final MyLocationListener myListener = new MyLocationListener();
 
     private MainViewModel viewModel;
+
+    private final List<DailyResponse.DailyBean> dailyBeanList = new ArrayList<>();
+    private final DailyAdapter dailyAdapter = new DailyAdapter(dailyBeanList);
+
+
+    private void initView() {
+        binding.rvDaily.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvDaily.setAdapter(dailyAdapter);
+    }
 
     /**
      * 注册意图
@@ -143,6 +156,7 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
         setFullScreenImmersion();
         initLocation();
         requestPermission();
+        initView();
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
     }
 
@@ -161,9 +175,24 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
                     if (id != null) {
                         //通过城市ID查询城市实时天气
                         viewModel.nowWeather(id);
+                        //通过城市IP查询天气预报
+                        viewModel.dailyWeather(id);
                     }
                 }
             });
+
+            //天气预报返回
+            viewModel.dailyResponseMutableLiveData.observe(this, dailyResponse -> {
+                List<DailyResponse.DailyBean> daily = dailyResponse.getDaily();
+                if (daily != null) {
+                    if (dailyBeanList.size() > 0) {
+                        dailyBeanList.clear();
+                    }
+                    dailyBeanList.addAll(daily);
+                    dailyAdapter.notifyDataSetChanged();
+                }
+            });
+
             //实况天气返回
             viewModel.nowResponseMutableLiveData.observe(this, nowResponse -> {
                 NowResponse.NowBean now = nowResponse.getNow();

@@ -12,8 +12,8 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/materialToolbar"
         android:layout_width="match_parent"
-        android:fitsSystemWindows="true"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -83,5 +83,16 @@
         app:layout_constraintEnd_toEndOf="@+id/tv_city"
         app:layout_constraintStart_toStartOf="@+id/tv_city"
         app:layout_constraintTop_toBottomOf="@+id/tv_city" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_daily"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_16"
+        android:paddingStart="@dimen/dp_16"
+        android:paddingEnd="@dimen/dp_16"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_update_time" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
