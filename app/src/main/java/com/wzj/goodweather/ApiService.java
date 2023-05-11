@@ -3,6 +3,7 @@ package com.wzj.goodweather;
 import static com.wzj.goodweather.Constant.API_KEY;
 
 import com.wzj.goodweather.bean.DailyResponse;
+import com.wzj.goodweather.bean.LifestyleResponse;
 import com.wzj.goodweather.bean.NowResponse;
 import com.wzj.goodweather.bean.SearchCityResponse;
 
@@ -28,5 +29,8 @@ public interface ApiService {
     @GET("/v7/weather/7d?key=" + API_KEY)
     Observable<DailyResponse> dailyWeather(@Query("location") String location);
 
+    //生活指数API
+    @GET("/v7/indices/1d?key="+API_KEY)
+    Observable<LifestyleResponse> lifestyle(@Query("type")String type,@Query("location")String location);
 
 }

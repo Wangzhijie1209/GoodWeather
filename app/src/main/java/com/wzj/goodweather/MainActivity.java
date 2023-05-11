@@ -2,6 +2,7 @@ package com.wzj.goodweather;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -13,7 +14,9 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.wzj.goodweather.adapter.DailyAdapter;
+import com.wzj.goodweather.adapter.LifestyleAdapter;
 import com.wzj.goodweather.bean.DailyResponse;
+import com.wzj.goodweather.bean.LifestyleResponse;
 import com.wzj.goodweather.bean.NowResponse;
 import com.wzj.goodweather.bean.SearchCityResponse;
 import com.wzj.goodweather.databinding.ActivityMainBinding;
@@ -35,13 +38,19 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
 
     private MainViewModel viewModel;
 
+    //RecyclerView近七天天气情况
     private final List<DailyResponse.DailyBean> dailyBeanList = new ArrayList<>();
     private final DailyAdapter dailyAdapter = new DailyAdapter(dailyBeanList);
+    //生活指数
+    private final List<LifestyleResponse.DailyBean> lifestyleList = new ArrayList<>();
+    private final LifestyleAdapter lifestyleAdapter = new LifestyleAdapter(lifestyleList);
 
 
     private void initView() {
         binding.rvDaily.setLayoutManager(new LinearLayoutManager(this));
         binding.rvDaily.setAdapter(dailyAdapter);
+        binding.rvLifestyle.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvLifestyle.setAdapter(lifestyleAdapter);
     }
 
     /**
@@ -175,8 +184,10 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
                     if (id != null) {
                         //通过城市ID查询城市实时天气
                         viewModel.nowWeather(id);
-                        //通过城市IP查询天气预报
+                        //通过城市ID查询天气预报
                         viewModel.dailyWeather(id);
+                        //通过城市ID查询生活指数
+                        viewModel.lifestyle(id);
                     }
                 }
             });
@@ -200,11 +211,28 @@ public class MainActivity extends NetWorkActivity<ActivityMainBinding> implement
                     binding.tvInfo.setText(now.getText());
                     binding.tvTemp.setText(now.getTemp());
                     binding.tvUpdateTime.setText("最近更新时间:" + nowResponse.getUpdateTime());
+
+                    binding.tvWindDirection.setText("风向   "+now.getWindDir());//风向
+                    binding.tvWindPower.setText("风力   "+now.getWindScale()+"级");//风力
+                    binding.wwBig.startRotate();//大风车开始转动
+                    binding.wwSmall.startRotate();//小风车开始转动
                 }
             });
             //错误信息返回
             viewModel.failed.observe(this, this::showLongMsg);
         }
+        //生活指数
+        viewModel.lifestyleResponseMutableLiveData.observe(this,lifestyleResponse -> {
+            List<LifestyleResponse.DailyBean> daily = lifestyleResponse.getDaily();
+            if(daily!=null){
+             if(lifestyleList.size()>0){
+                 lifestyleList.clear();
+             }
+             lifestyleList.addAll(daily);
+             lifestyleAdapter.notifyDataSetChanged();
+            }
+        });
     }
+
 
 }
